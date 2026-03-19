@@ -28,7 +28,7 @@ CREATE TABLE repair_order(
     fix_type    VARCHAR(50) NOT NULL COMMENT '报修的类型',
     description TEXT COMMENT '问题描述',
     status      VARCHAR(20) DEFAULT 'pending' COMMENT '状态',-- 默认是在等待
-    -- priority     VARCHAR(20) DEFAULT 'medium' COMMENT '优先级',
+    priority     VARCHAR(20) DEFAULT 'medium' COMMENT '优先级',
     create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
     update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     -- 添加外键约束,order表的student id 必须和 user表有对应

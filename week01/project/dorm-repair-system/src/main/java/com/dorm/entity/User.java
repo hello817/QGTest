@@ -79,5 +79,36 @@ public class User {
     //以下为业务方法
 
     //判断身份
-    public boolean isStudent() {return STUDENT.equals(this.role);}
+    public boolean isStudent() {return STUDENT.equals(this.role);}//非基础数据（包装类）要用equls比较，new对象不会在常量池复用，这种时候用==可能会造成误判
+    public boolean isAdmin() {return ADMIN.equals(this.role);}
+    //判断是否绑定宿舍
+    public boolean hasBoundDorm(){
+        return building != null && roomNumber != null;
+    }
+    //覆写打印类，不然打印user（对象）输出的是@user+哈希码，具体为什么要覆写toString解释放在日记内
+    @Override
+    public String toString(){
+        return String.format(
+                "User(id=%d,account='%s',role='%s',dorm='%s%s')",//dorm(宿舍)即为楼号+房间号
+                id,account,role,
+                building != null? building : "未绑定",
+                roomNumber != null? roomNumber : " 无"
+        );
+    }
+    //判断是否为同一对象(覆写equals方法)防止内容相同的两个不同对象被误判为同一内容
+    @Override
+    public boolean equals(Object obj){
+        //特判
+        if(this==obj) return true;//同一对象
+        if(obj==null) return false;//空对象
+        if (getClass()!= obj.getClass()) return false;//类型不同
+        User other = (User) obj;//因为传入的时候默认是父类object的对象，但是比较内容是user类特有的private封装，所以要向下转型成user对象
+        return account != null && account.equals(other.account);
+    }
+    //hashCode，equals必须搭配hashcode使用，不然相同账号在创建新的hashset时会被赋予不同的哈希码导致不在同一桶内判断为不同对象
+    @Override
+    public int hashCode() {
+        return account != null? account.hashCode() : 0;
+    }
 }
+//用户表单实体类完工
