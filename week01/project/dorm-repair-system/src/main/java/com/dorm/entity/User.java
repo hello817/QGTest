@@ -17,8 +17,7 @@ public class User {
     private String building;
     private String roomNumber;
     //接下来是时间类
-    private LocalDateTime creatTime;
-    private LocalDateTime updateTime;
+    private LocalDateTime createTime;
     public static final String STUDENT = "student";
     //final类似const或者宏定义？一旦定义就不能更改
     public static final String ADMIN = "admin";
@@ -39,7 +38,7 @@ public class User {
         this.role = role;
         this.building = building;
         this.roomNumber = roomNumber;
-        this.creatTime = LocalDateTime.now();//自动设置为当前时间
+        this.createTime = LocalDateTime.now();//自动设置为当前时间
     }
 
     //接下来是会用到的函数
@@ -70,19 +69,15 @@ public class User {
     public String getRoomNumber(){return this.roomNumber;}
     public void setRoomNumber(String roomNumber){this.roomNumber = roomNumber;}
     //createTime因为不会有命名冲突所以不用加this限制，updateTime同理
-    public LocalDateTime getCreatTime(){return creatTime;}
-    public void setCreatTime(LocalDateTime creatTime){this.creatTime = creatTime;}
-    //updateTime
-    public LocalDateTime getUpdateTime() {return updateTime;}
-    public void setUpdateTime(LocalDateTime updateTime) {this.updateTime = updateTime;}
-
+    public LocalDateTime getCreatTime(){return createTime;}
+    public void setCreatTime(LocalDateTime creatTime){this.createTime = creatTime;}
     //以下为业务方法
 
     //判断身份
     public boolean isStudent() {return STUDENT.equals(this.role);}//非基础数据（包装类）要用equls比较，new对象不会在常量池复用，这种时候用==可能会造成误判
     public boolean isAdmin() {return ADMIN.equals(this.role);}
     //判断是否绑定宿舍
-    public boolean hasBoundDorm(){
+    public boolean hasDorm(){
         return building != null && roomNumber != null;
     }
     //覆写打印类，不然打印user（对象）输出的是@user+哈希码，具体为什么要覆写toString解释放在日记内
