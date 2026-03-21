@@ -1,15 +1,13 @@
 package com.dorm.entity;
 //和user表差不多逻辑
+import org.apache.ibatis.javassist.bytecode.stackmap.BasicBlock;
+
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;//生成唯一id用，这里因为util类语法很多所以只引用一个
 public class RepairOrder {
     //先为报修状态和报修优先级添加枚举变量-status 和 priority
     public enum Status{
-        /**枚举常量，每个常量都带两个数据,有待处理，处理中，已完成，取消，
-         * 而且枚举常量因为完全就是一个对象类型，比较时会很安全（对象无法和其他类型甚至是和自己不同的类型比较）
-         */
-        //这里其实是调用了后面的构造函数，前面作为code使用，后面作为description使用
         PENDING("pending","待处理"),
         PROCESSING("processing","处理中"),
         COMPELITED("complited","已完成"),
@@ -25,7 +23,7 @@ public class RepairOrder {
         public String getCode(){return this.code;}
         public String getDescription() {return this.description;}
         // 静态方法：属于类本身，不属于任何实例
-        public static Status formCode(String code){
+        public static Status fromCode(String code){
             for (Status s: values()){
                 if(s.code.equals(code)){return s;}
             }
@@ -56,7 +54,7 @@ public class RepairOrder {
     }
     //创建成员变量
     private long id;
-    private String oderNo;//oderNumber
+    private String orderNo;//oderNumber
     private long studentId;//外键
     private String fixType;
     private String description;
@@ -68,7 +66,7 @@ public class RepairOrder {
     private User student;
 
     public RepairOrder(){
-        this.oderNo = generateOderNo();
+        this.orderNo = generateOderNo();
         this.status = Status.PENDING.getCode();
         this.priority = Priority.MEDIUM.getCode();
         this.creatTime = LocalDateTime.now();
@@ -82,5 +80,66 @@ public class RepairOrder {
         int random = (int)(Math.random()*10000);
         return 'L' + date + String.format("%04d",random);
     }
+    //getter+setter
 
+    public long getId() {return id;}
+    public void setId(long id) {this.id = id;}
+
+    public String getOrderNo(){return this.orderNo;}
+    public void setOrderNo(String orderNo) {this.orderNo = orderNo;}
+
+    public long getStudentId() {return this.studentId;}
+    public void setStudentId(long studentId) {this.studentId = studentId;}
+
+    public String getFixType(){return fixType;}
+    public void setFixType(String fixType){this.fixType = fixType;}
+
+    public String getDescription(){return description;}
+    public void setDescription(String description){this.description = description;}
+
+    public String getStatus() {return status;}
+    public void setStatus(Status status){this.status = status.getCode();}
+    public void setStatus(String status){this.status = status;}
+
+    public String getPriority(){return priority;}
+    public void setPriority(Priority priority){this.priority = priority.getCode();}
+    public void setPriority(String priority){this.priority = priority;}
+
+    public LocalDateTime getCreateTime(){return this.creatTime;}
+    public void setCreateTime (LocalDateTime creatTime) {this.creatTime = creatTime;}
+
+    public LocalDateTime getUpdateTime(){return this.upodateTime;}
+    public void setUpdateTime(LocalDateTime upodateTime){this.upodateTime = upodateTime;}
+
+    public User getStudent(){return student;}
+    public void setStudent(User student){
+        this.student = student;
+        if (student != null){
+            this.studentId = student.getId();
+        }
+    }
+
+    //业务方法
+    public String getStatusText(){
+        try {
+            return Status.fromCode(status).getDescription();
+        }catch (Exception e){
+            return "未知";
+        }
+    }
+    public String getPriorityText(){
+        try{
+            return Priority.formCode(priority).getDescription();
+        }catch (Exception e){
+            return "中";//未知状态就返回默认值
+        }
+    }
+
+    public boolean canCancel(){//判断能否取消(是否在pending状态)
+        return Status.PENDING.getCode().equals(status);
+    }
+    //Tostring
+    public String toString(){
+        return String.format("报修单[单号=%s，设备=%s，状态=%s]",orderNo,fixType,status);
+    }
 }

@@ -18,6 +18,7 @@ public class User {
     private String roomNumber;
     //接下来是时间类
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
     public static final String STUDENT = "student";
     //final类似const或者宏定义？一旦定义就不能更改
     public static final String ADMIN = "admin";
@@ -39,6 +40,7 @@ public class User {
         this.building = building;
         this.roomNumber = roomNumber;
         this.createTime = LocalDateTime.now();//自动设置为当前时间
+        this.updateTime = LocalDateTime.now();
     }
 
     //接下来是会用到的函数
@@ -69,8 +71,10 @@ public class User {
     public String getRoomNumber(){return this.roomNumber;}
     public void setRoomNumber(String roomNumber){this.roomNumber = roomNumber;}
     //createTime因为不会有命名冲突所以不用加this限制，updateTime同理
-    public LocalDateTime getCreatTime(){return createTime;}
-    public void setCreatTime(LocalDateTime creatTime){this.createTime = creatTime;}
+    public LocalDateTime getCreateTime(){return createTime;}
+    public void setCreateTime(LocalDateTime createTime){this.createTime = createTime;}
+    public LocalDateTime getUpdateTime() { return updateTime; }
+    public void setUpdateTime(LocalDateTime updateTime) { this.updateTime = updateTime; }
     //以下为业务方法
 
     //判断身份

@@ -8,11 +8,12 @@ CREATE TABLE user
 (
     id          BIGINT PRIMARY KEY AUTO_INCREMENT COMMENT '用户ID',
     account     VARCHAR(20) NOT NULL UNIQUE COMMENT '账号',
-    password    VARCHAR(50) NOT NULL COMMENT '密码', -- 密码可以重复
+    password    VARCHAR(225) NOT NULL COMMENT '密码', -- 密码可以重复
     role        VARCHAR(20) NOT NULL COMMENT '角色',
     building    VARCHAR(20) COMMENT '宿舍楼栋',
     room        VARCHAR(20) COMMENT '房间号',
-    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,-- 时间戳，可以在插入时自动维护
+    create_time DATETIME DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- 时间戳，可以在插入时自动维护
     INDEX       idx_account (account), -- 添加索引，便于直接，快速的查询
     INDEX       idx_role (role)
 )COMMENT '用户表';
