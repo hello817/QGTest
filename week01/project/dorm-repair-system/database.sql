@@ -1,5 +1,6 @@
 CREATE DATABASE IF NOT EXISTS repair_system
 CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+-- 这里是建表脚本
 -- 创建数据库和设置数据库字符集要合并到一条语句中
 USE repair_system;
 
@@ -36,6 +37,7 @@ CREATE TABLE repair_order(
     INDEX       id_status(status)
 )COMMENT '保修单表';
 -- 表单完工,添加测试账号
+-- 有bug好像没有成功加到表里，以后修吧qwq
 INSERT INTO user (account,password,role) VALUES ('0025000001','8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92','admin');
--- 我说哈希加密密码战未来
+-- 哈希加密战未来
 INSERT INTO user (account, password, role, building, room) VALUES ('2024001', '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92', 'student', 'A栋', '101');

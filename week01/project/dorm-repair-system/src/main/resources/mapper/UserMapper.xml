@@ -3,9 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.dorm.mapper.UserMapper">
-
+<!--对user成员变量的一一对应-->
     <resultMap id="userMap" type="com.dorm.entity.User">
-        <id property="id" column="id"/>
+        <id property="id" column="id"/> <!--key-->
         <result property="account" column="account"/>
         <result property="password" column="password"/>
         <result property="role" column="role"/>

@@ -7,12 +7,12 @@ import org.apache.ibatis.session.SqlSession;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-
+//加密选用md5，不加盐
 public class Main {
 
     private static User currentUser = null;
     private static Scanner scanner = new Scanner(System.in);
-
+    //账号格式
     private static final Pattern STUDENT_PATTERN = Pattern.compile("^(3125|3225)\\d{6}$");
     private static final Pattern ADMIN_PATTERN = Pattern.compile("^0025\\d{6}$");
 
@@ -28,7 +28,7 @@ public class Main {
                 }
                 return hex.toString();
             } catch (Exception e) {
-                return input;
+                return input;//加密失败就返回原输入
             }
         }
         public static boolean check(String input, String encrypted) {
@@ -54,7 +54,7 @@ public class Main {
     }
 
     // ==================== 登录相关 ====================
-
+    //菜单
     private static void showLoginMenu() {
         System.out.println("\n【主菜单】");
         System.out.println("1. 登录");
@@ -69,7 +69,7 @@ public class Main {
             default: System.out.println("输入错误");
         }
     }
-
+    //登录模块
     private static void login() {
         System.out.println("\n【用户登录】");
         System.out.print("账号：");
@@ -94,7 +94,7 @@ public class Main {
             System.out.println("❌ 登录失败：" + e.getMessage());
         }
     }
-
+    //注册模块
     private static void register() {
         System.out.println("\n【用户注册】");
         System.out.print("请选择角色（1-学生，2-管理员）：");
@@ -155,7 +155,7 @@ public class Main {
     }
 
     // ==================== 学生菜单 ====================
-
+    //菜单
     private static void showStudentMenu() {
         System.out.println("\n【学生菜单】");
         System.out.println("当前用户：" + currentUser.getAccount());
@@ -186,7 +186,7 @@ public class Main {
             default: System.out.println("输入错误");
         }
     }
-
+    //显示在菜单中，现实目前的信息，方便确认以及调试
     private static void viewMyInfo() {
         System.out.println("\n【我的基本信息】");
         System.out.println("账号：" + currentUser.getAccount());
@@ -194,7 +194,7 @@ public class Main {
         System.out.println("宿舍：" + (currentUser.hasDorm() ? currentUser.getBuilding() + currentUser.getRoomNumber() : "未绑定"));
         System.out.println("注册时间：" + currentUser.getCreateTime());
     }
-
+    //绑定宿舍
     private static void bindDorm() {
         System.out.println("\n【绑定宿舍】");
         System.out.print("楼栋（如：A栋）：");
@@ -217,7 +217,7 @@ public class Main {
             System.out.println("❌ 绑定失败：" + e.getMessage());
         }
     }
-
+    //创建保修单
     private static void createRepairOrder() {
         if (!currentUser.hasDorm()) {
             System.out.println("❌ 请先绑定宿舍");
@@ -245,6 +245,7 @@ public class Main {
         System.out.println("  3. 低");
         System.out.print("请选择：");
         int priIdx = readInt(1, 3);
+        //这里要注意是枚举类型
         RepairOrder.Priority[] priorities = {null, RepairOrder.Priority.HIGH, RepairOrder.Priority.MEDIUM, RepairOrder.Priority.LOW};
         RepairOrder.Priority priority = priorities[priIdx];
 
