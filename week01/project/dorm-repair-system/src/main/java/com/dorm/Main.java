@@ -308,18 +308,12 @@ public class Main {
             return;
         }
 
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            UserMapper mapper = session.getMapper(UserMapper.class);
-            User user = mapper.selectById(currentUser.getId());
-            if (!EncryptUtil.check(oldPwd, user.getPassword())) {
-                System.out.println("❌ 原密码错误");
-                return;
-            }
-            user.setPassword(EncryptUtil.encrypt(newPwd));
-            mapper.update(user);
+        try {
+            UserService userService = new UserService();
+            userService.changePassword(currentUser,oldPwd,newPwd);
             System.out.println("✅ 修改成功，请重新登录");
             currentUser = null;
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("❌ 修改失败：" + e.getMessage());
         }
     }

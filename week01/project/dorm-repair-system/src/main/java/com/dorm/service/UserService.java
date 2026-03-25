@@ -17,7 +17,7 @@ public class UserService {
 //    private static final Pattern STUDENT_PATTERN = Pattern.compile("(3125/3225)\\d{6}$");//一定要有3125/3225前缀，后重接六位数字类型
 //    private static final Pattern ADMIN_PATTERN = Pattern.compile("^0025\\d{6}$");//
     // 加密工具
-    private static class EncryptUtil {
+    public static class EncryptUtil {
         public static String encrypt(String input) {
             try {
                 java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
@@ -36,7 +36,7 @@ public class UserService {
         }
     }
     //登录
-    private User login(String account ,String password) {
+    public User login(String account ,String password) {
         try (SqlSession session = MyBatisUtil.getSqlSession()){
             UserMapper mapper = session.getMapper(UserMapper.class);
             User user = mapper.selectByAccount(account);
@@ -57,7 +57,7 @@ public class UserService {
         }
     }
     //注册
-    private void register(String account,String password,String role) {
+    public void register(String account,String password,String role) {
         try(SqlSession session = MyBatisUtil.getSqlSession()){
             UserMapper mapper = session.getMapper(UserMapper.class);
             if(mapper.selectByAccount(account)!=null){
@@ -68,10 +68,15 @@ public class UserService {
         }
     }
     //修改密码
-    private void changePassword(User user,String oldPwd,String newPwd){
+    public void changePassword(User currentUser,String oldPwd,String newPwd){
         try (SqlSession session = MyBatisUtil.getSqlSession()){
             UserMapper mapper = session.getMapper(UserMapper.class);
-            
+            User user = mapper.selectById(currentUser.getId());
+            if (!EncryptUtil.check(oldPwd,user.getPassword())){
+                throw new RuntimeException("❌ 原密码错误");
+            }
+            user.setPassword(EncryptUtil.encrypt(newPwd));
+            mapper.update(user);
         }
     }
 }
