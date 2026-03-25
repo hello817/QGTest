@@ -2,40 +2,22 @@ package com.dorm;
 
 import com.dorm.entity.*;
 import com.dorm.mapper.*;
+import com.dorm.service.UserService;
 import com.dorm.utils.MyBatisUtil;
 import org.apache.ibatis.session.SqlSession;
 import java.util.List;
 import java.util.Scanner;
 import java.util.regex.Pattern;
-//加密选用md5，不加盐
+//加密选用Sha256
 public class Main {
 
-    private static User currentUser = null;
+    //账号格式(const固定)
+    private static User currentUser = null;//连接用户表用
     private static Scanner scanner = new Scanner(System.in);
-    //账号格式
-    private static final Pattern STUDENT_PATTERN = Pattern.compile("^(3125|3225)\\d{6}$");
-    private static final Pattern ADMIN_PATTERN = Pattern.compile("^0025\\d{6}$");
 
-    // 加密工具
-    private static class EncryptUtil {
-        public static String encrypt(String input) {
-            try {
-                java.security.MessageDigest md = java.security.MessageDigest.getInstance("SHA-256");
-                byte[] hash = md.digest(input.getBytes("UTF-8"));
-                StringBuilder hex = new StringBuilder();
-                for (byte b : hash) {
-                    hex.append(String.format("%02x", b));
-                }
-                return hex.toString();
-            } catch (Exception e) {
-                return input;//加密失败就返回原输入
-            }
-        }
-        public static boolean check(String input, String encrypted) {
-            return encrypt(input).equals(encrypted);
-        }
-    }
 
+    private static final Pattern STUDENT_PATTERN = Pattern.compile("(3125/3225)\\d{6}$");//一定要有3125/3225前缀，后重接六位数字类型
+    private static final Pattern ADMIN_PATTERN = Pattern.compile("^0025\\d{6}$");//
     public static void main(String[] args) {
         System.out.println("================================");
         System.out.println("      宿舍报修管理系统");
@@ -63,39 +45,30 @@ public class Main {
         System.out.print("请选择：");
         String choice = scanner.nextLine();
         switch (choice) {
-            case "1": login(); break;
-            case "2": register(); break;
+            case "1": loginUI(); break;
+            case "2": registerUI(); break;
             case "3": System.out.println("再见！"); System.exit(0); break;
             default: System.out.println("输入错误");
         }
     }
     //登录模块
-    private static void login() {
+    private static void loginUI() {
         System.out.println("\n【用户登录】");
         System.out.print("账号：");
         String account = scanner.nextLine();
         System.out.print("密码：");
         String password = scanner.nextLine();
-
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            UserMapper mapper = session.getMapper(UserMapper.class);
-            User user = mapper.selectByAccount(account);
-            if (user == null) {
-                System.out.println("❌ 账号不存在");
-                return;
-            }
-            if (!EncryptUtil.check(password, user.getPassword())) {
-                System.out.println("❌ 密码错误");
-                return;
-            }
-            currentUser = user;
+        //service
+        try {
+            UserService userService = new UserService();
+            currentUser = userService.login(account, password);
             System.out.println("✅ 登录成功！欢迎 " + account);
-        } catch (Exception e) {
-            System.out.println("❌ 登录失败：" + e.getMessage());
+        }catch (RuntimeException e){
+            System.out.println("❌ 登录失败："+e.getMessage());
         }
     }
     //注册模块
-    private static void register() {
+    private static void registerUI() {
         System.out.println("\n【用户注册】");
         System.out.print("请选择角色（1-学生，2-管理员）：");
         String roleChoice = scanner.nextLine();
@@ -140,16 +113,11 @@ public class Main {
             return;
         }
 
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            UserMapper mapper = session.getMapper(UserMapper.class);
-            if (mapper.selectByAccount(account) != null) {
-                System.out.println("❌ 账号已存在");
-                return;
-            }
-            User user = new User(account, EncryptUtil.encrypt(password), role);
-            mapper.insert(user);
-            System.out.println("✅ 注册成功！请登录");
-        } catch (Exception e) {
+        try  {
+            UserService userService = new UserService();
+            userService.register(account,password,role);
+            System.out.println("✅ 注册成功");
+        } catch (RuntimeException e) {
             System.out.println("❌ 注册失败：" + e.getMessage());
         }
     }
@@ -264,7 +232,7 @@ public class Main {
             System.out.println("❌ 创建失败：" + e.getMessage());
         }
     }
-
+    //查看保修记录
     private static void viewMyOrders() {
         System.out.println("\n【我的报修记录】");
         try (SqlSession session = MyBatisUtil.getSqlSession()) {
@@ -290,7 +258,7 @@ public class Main {
             System.out.println("❌ 查询失败：" + e.getMessage());
         }
     }
-
+    //删除报修记录
     private static void cancelOrder() {
         System.out.println("\n【取消报修单】");
         System.out.print("请输入报修单号：");
@@ -321,7 +289,7 @@ public class Main {
             System.out.println("❌ 取消失败：" + e.getMessage());
         }
     }
-
+    //修改密码
     private static void changePassword() {
         System.out.println("\n【修改密码】");
         System.out.print("原密码：");
@@ -357,7 +325,7 @@ public class Main {
     }
 
     // ==================== 管理员菜单 ====================
-
+    //菜单界面
     private static void showAdminMenu() {
         System.out.println("\n【管理员菜单】");
         System.out.println("当前管理员：" + currentUser.getAccount());
@@ -383,7 +351,7 @@ public class Main {
             default: System.out.println("输入错误");
         }
     }
-
+    //浏览报修单
     private static void viewAllOrders() {
         System.out.println("\n【所有报修单】");
         try (SqlSession session = MyBatisUtil.getSqlSession()) {
