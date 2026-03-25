@@ -144,12 +144,12 @@ public class Main {
 
         String choice = scanner.nextLine();
         switch (choice) {
-            case "1": bindDorm(); break;
-            case "2": createRepairOrder(); break;
-            case "3": viewMyOrders(); break;
+            case "1": bindDormUI(); break;
+            case "2": createRepairOrderUI(); break;
+            case "3": viewMyOrdersUI(); break;
             case "4": cancelOrder(); break;
             case "5": viewMyInfo(); break;
-            case "6": changePassword(); break;
+            case "6": changePasswordUI(); break;
             case "7": currentUser = null; System.out.println("已退出登录"); break;
             default: System.out.println("输入错误");
         }
@@ -163,7 +163,7 @@ public class Main {
         System.out.println("注册时间：" + currentUser.getCreateTime());
     }
     //绑定宿舍
-    private static void bindDorm() {
+    private static void bindDormUI() {
         System.out.println("\n【绑定宿舍】");
         System.out.print("楼栋（如：A栋）：");
         String building = scanner.nextLine();
@@ -175,18 +175,16 @@ public class Main {
             return;
         }
 
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            UserMapper mapper = session.getMapper(UserMapper.class);
-            currentUser.setBuilding(building);
-            currentUser.setRoomNumber(roomNumber);
-            mapper.update(currentUser);
+        try {
+            UserService userService = new UserService();
+            userService.bindDorm(currentUser,building,roomNumber);
             System.out.println("✅ 绑定成功！");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("❌ 绑定失败：" + e.getMessage());
         }
     }
     //创建保修单
-    private static void createRepairOrder() {
+    private static void createRepairOrderUI() {
         if (!currentUser.hasDorm()) {
             System.out.println("❌ 请先绑定宿舍");
             return;
@@ -217,27 +215,24 @@ public class Main {
         RepairOrder.Priority[] priorities = {null, RepairOrder.Priority.HIGH, RepairOrder.Priority.MEDIUM, RepairOrder.Priority.LOW};
         RepairOrder.Priority priority = priorities[priIdx];
 
-        RepairOrder order = new RepairOrder();
-        order.setStudentId(currentUser.getId());
-        order.setFixType(fixType);
-        order.setDescription(description);
-        order.setPriority(priority);
+        long id = currentUser.getId();
 
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
-            mapper.insert(order);
+        try  {
+            UserService userService = new UserService();
+            String orderNo = userService.createRepairOrder(id,fixType,description,priority);
             System.out.println("✅ 报修单创建成功！");
-            System.out.println("单号：" + order.getOrderNo());
+            System.out.println("单号：" + orderNo);
         } catch (Exception e) {
             System.out.println("❌ 创建失败：" + e.getMessage());
         }
     }
     //查看保修记录
-    private static void viewMyOrders() {
+    //简单的视图层查询，没必要迁移
+    private static void viewMyOrdersUI() {
         System.out.println("\n【我的报修记录】");
         try (SqlSession session = MyBatisUtil.getSqlSession()) {
             RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
-            List<RepairOrder> orders = mapper.selectByStudentId(currentUser.getId());
+            List<RepairOrder> orders = mapper.selectByStudentId(currentUser.getId());//list存储所有找到的报修单
             if (orders.isEmpty()) {
                 System.out.println("暂无报修记录");
                 return;
@@ -259,11 +254,16 @@ public class Main {
         }
     }
     //删除报修记录
+    /**校验全都放到ui层吧，处理确认取消情况用，
+     * 或者可以给校验单独做一个业务
+     * 但是这样的话要搜库两次增加性能开销，最后还是不如在ui层一次搜库全部使用
+     * */
     private static void cancelOrder() {
         System.out.println("\n【取消报修单】");
         System.out.print("请输入报修单号：");
         String orderNo = scanner.nextLine();
 
+        long studentId = currentUser.getId();
         try (SqlSession session = MyBatisUtil.getSqlSession()) {
             RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
             RepairOrder order = mapper.selectByOrderNo(orderNo);
@@ -282,15 +282,15 @@ public class Main {
             System.out.print("确认取消？(y/n)：");
             if (!"y".equalsIgnoreCase(scanner.nextLine())) return;
 
-            order.setStatus(RepairOrder.Status.CANCELLED);
-            mapper.update(order);
+            UserService userService = new UserService();
+            userService.cancelOrder(order);
             System.out.println("✅ 已取消");
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
             System.out.println("❌ 取消失败：" + e.getMessage());
         }
     }
     //修改密码
-    private static void changePassword() {
+    private static void changePasswordUI() {
         System.out.println("\n【修改密码】");
         System.out.print("原密码：");
         String oldPwd = scanner.nextLine();
@@ -338,9 +338,9 @@ public class Main {
             case "1": viewAllOrders(); break;
             case "2": viewOrdersByStatus(); break;
             case "3": viewOrderDetail(); break;
-            case "4": updateOrderStatus(); break;
-            case "5": deleteOrder(); break;
-            case "6": changePassword(); break;
+            case "4": updateOrderStatusUI(); break;
+            case "5": deleteOrderUI(); break;
+            case "6": changePasswordUI(); break;
             case "7": currentUser = null; System.out.println("已退出登录"); break;
             default: System.out.println("输入错误");
         }
@@ -437,8 +437,8 @@ public class Main {
             System.out.println("❌ 查询失败：" + e.getMessage());
         }
     }
-
-    private static void updateOrderStatus() {
+    //感觉其实也没必要迁了(?
+    private static void updateOrderStatusUI() {
         System.out.println("\n【更新报修单状态】");
         System.out.print("请输入报修单号：");
         String orderNo = scanner.nextLine();
@@ -463,15 +463,15 @@ public class Main {
                 case 2: newStatus = RepairOrder.Status.COMPELITED; break;
                 case 3: newStatus = RepairOrder.Status.CANCELLED; break;
             }
-            order.setStatus(newStatus);
-            mapper.update(order);
+            UserService userService = new UserService();
+            userService.updateOrderStatus(order,newStatus);
             System.out.println("✅ 状态已更新为：" + order.getStatusText());
         } catch (Exception e) {
             System.out.println("❌ 更新失败：" + e.getMessage());
         }
     }
 
-    private static void deleteOrder() {
+    private static void deleteOrderUI() {
         System.out.println("\n【删除报修单】");
         System.out.print("请输入报修单号：");
         String orderNo = scanner.nextLine();
@@ -479,15 +479,9 @@ public class Main {
         System.out.print("确认删除？(y/n)：");
         if (!"y".equalsIgnoreCase(scanner.nextLine())) return;
 
-        try (SqlSession session = MyBatisUtil.getSqlSession()) {
-            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
-            RepairOrder order = mapper.selectByOrderNo(orderNo);
-            if (order == null) {
-                System.out.println("❌ 报修单不存在");
-                return;
-            }
-            mapper.deleteById(order.getId());
-            System.out.println("✅ 已删除");
+        try {
+            UserService userService = new UserService();
+            userService.deleteOrder(orderNo);
         } catch (Exception e) {
             System.out.println("❌ 删除失败：" + e.getMessage());
         }

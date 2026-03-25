@@ -67,6 +67,37 @@ public class UserService {
             mapper.insert(user);
         }
     }
+    //宿舍绑定
+    public void bindDorm(User user,String building,String roomNo){
+        try(SqlSession session = MyBatisUtil.getSqlSession()){
+            UserMapper mapper = session.getMapper(UserMapper.class);
+            user.setBuilding(building);
+            user.setRoomNumber(roomNo);
+            mapper.update(user);
+        }
+    }
+    //创建报修单
+    public String createRepairOrder(long studentId,String fixType,String description,RepairOrder.Priority priority) {
+        try(SqlSession session = MyBatisUtil.getSqlSession()){
+            //注意这里要用报修单的映射
+            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
+            RepairOrder order = new RepairOrder();
+            order.setStudentId(studentId);
+            order.setFixType(fixType);
+            order.setDescription(description);
+            order.setPriority(priority);
+            mapper.insert(order);
+            return order.getOrderNo();
+        }
+    }
+    //删除报修单
+    public void cancelOrder(RepairOrder order){
+        try(SqlSession session = MyBatisUtil.getSqlSession()){
+            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
+            order.setStatus(RepairOrder.Status.CANCELLED);
+            mapper.update(order);
+        }
+    }
     //修改密码
     public void changePassword(User currentUser,String oldPwd,String newPwd){
         try (SqlSession session = MyBatisUtil.getSqlSession()){
@@ -77,6 +108,33 @@ public class UserService {
             }
             user.setPassword(EncryptUtil.encrypt(newPwd));
             mapper.update(user);
+        }
+    }
+    /*
+    ---------管理员业务
+    需要迁移：
+        1.更新报修单状态
+        2.删除报修单
+     */
+    //更新报修单
+    public void updateOrderStatus(RepairOrder order,RepairOrder.Status newStatus){
+        try(SqlSession session = MyBatisUtil.getSqlSession()){
+            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
+            order.setStatus(newStatus);
+            mapper.update(order);
+        }
+    }
+    //删除报修单
+    public void deleteOrder(String orderNo){
+        try(SqlSession session = MyBatisUtil.getSqlSession()){
+            RepairOrderMapper mapper = session.getMapper(RepairOrderMapper.class);
+            RepairOrder order = mapper.selectByOrderNo(orderNo);
+            if(order == null){
+                throw new RuntimeException("报修单不存在");
+            }
+            mapper.deleteById(order.getId());
+        }catch(RuntimeException e){
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

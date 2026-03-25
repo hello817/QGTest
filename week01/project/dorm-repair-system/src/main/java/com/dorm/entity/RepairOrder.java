@@ -64,7 +64,7 @@ public class RepairOrder {
     private LocalDateTime upodateTime;
     //关联对象
     private User student;
-
+    //单号是创建的时候就顺便出的
     public RepairOrder(){
         this.orderNo = generateOderNo();
         this.status = Status.PENDING.getCode();
