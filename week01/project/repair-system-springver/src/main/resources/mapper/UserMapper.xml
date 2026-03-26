@@ -33,7 +33,7 @@
         SET password = #{password},
         building = #{building},
         room = #{roomNumber},
-        update_time = NOW()    <!-- 新增，自动更新最后修改时间 -->
+        update_time = NOW()
         WHERE id = #{id}
     </update>
 

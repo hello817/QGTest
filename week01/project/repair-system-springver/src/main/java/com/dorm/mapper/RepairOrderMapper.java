@@ -2,10 +2,11 @@ package com.dorm.mapper;
 //同user
 
 import com.dorm.entity.RepairOrder;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
-
+@Mapper
 public interface RepairOrderMapper {
     int insert(RepairOrder order);//插入
     RepairOrder selectById(long id);//按id查找

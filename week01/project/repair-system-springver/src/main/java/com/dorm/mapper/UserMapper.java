@@ -2,12 +2,14 @@ package com.dorm.mapper;
 //mapper即为DAO层
 
 import com.dorm.entity.User;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 import java.util.Map;
 
 //mapper(DAO)层不要用class，要用interface定义接口类
 //不管用不用得到先把能定义的全定义一下，最后精简
+@Mapper
 public interface UserMapper {
     int insert(User user);//返回成功插入的用户表单数量，更好的判断插入有没有被执行
     User selectById(long id);
