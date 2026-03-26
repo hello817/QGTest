@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!--map文件的xml映射，即mao中定义的方法到这里面来实现-->
+<mapper namespace="com.dorm.mapper.UserMapper">
+<!--对user成员变量的一一对应-->
+    <resultMap id="userMap" type="com.dorm.entity.User">
+        <id property="id" column="id"/> <!--key-->
+        <result property="account" column="account"/>
+        <result property="password" column="password"/>
+        <result property="role" column="role"/>
+        <result property="building" column="building"/>
+        <result property="roomNumber" column="room"/>
+        <result property="createTime" column="create_time"/>
+        <result property="updateTime" column="update_time"/>   <!-- 新增/好像用不到 -->
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO user (account, password, role, building, room, create_time, update_time)
+        VALUES (#{account}, #{password}, #{role}, #{building}, #{roomNumber}, NOW(), NOW())
+    </insert>
+
+    <select id="selectById" resultMap="userMap">
+        SELECT * FROM user WHERE id = #{id}
+    </select>
+
+    <select id="selectByAccount" resultMap="userMap">
+        SELECT * FROM user WHERE account = #{account}
+    </select>
+
+    <update id="update">
+        UPDATE user
+        SET password = #{password},
+        building = #{building},
+        room = #{roomNumber},
+        update_time = NOW()    <!-- 新增，自动更新最后修改时间 -->
+        WHERE id = #{id}
+    </update>
+
+    <select id="selectAllStudents" resultMap="userMap">
+        SELECT * FROM user WHERE role = 'student' ORDER BY create_time DESC
+    </select>
+
+    <select id="countByRole" resultType="java.util.HashMap">
+        SELECT role, COUNT(*) as count FROM user GROUP BY role
+    </select>
+
+</mapper>
