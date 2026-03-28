@@ -10,7 +10,7 @@ mybatis:
   type-aliases-package: com.dorm.entity
 
 server:
-  port: 8080
+  port: 8081
 # JWT 配置
 jwt:
   secret: your-secret-key-here-at-least-256-bits-long

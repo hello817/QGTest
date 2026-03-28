@@ -68,7 +68,8 @@ public class UserService {
     }
     //宿舍绑定
     @Transactional
-    public void bindDorm(User user,String building,String roomNo){
+    public void bindDorm(long userId,String building,String roomNo){
+            User user = userMapper.selectById(userId);
             user.setBuilding(building);
             user.setRoomNumber(roomNo);
             userMapper.update(user);
@@ -85,16 +86,17 @@ public class UserService {
             repairOrderMapper.insert(order);
             return order.getOrderNo();
     }
-    //删除报修单
+    //取消报修单
     @Transactional
-    public void cancelOrder(RepairOrder order){
+    public void cancelOrder(String orderNo){
+            RepairOrder order = repairOrderMapper.selectByOrderNo(orderNo);
             order.setStatus(RepairOrder.Status.CANCELLED);
             repairOrderMapper.update(order);
     }
     //修改密码
     @Transactional
-    public void changePassword(User currentUser,String oldPwd,String newPwd){
-            User user = userMapper.selectById(currentUser.getId());
+    public void changePassword(long id,String oldPwd,String newPwd){
+            User user = userMapper.selectById(id);
             if (!EncryptUtil.check(oldPwd,user.getPassword())){
                 throw new RuntimeException("❌ 原密码错误");
             }
@@ -109,9 +111,10 @@ public class UserService {
      */
     //更新报修单
     @Transactional
-    public void updateOrderStatus(RepairOrder order,RepairOrder.Status newStatus){
-            order.setStatus(newStatus);
-            repairOrderMapper.update(order);
+    public void updateOrderStatus(String orderNo,RepairOrder.Status newStatus){
+        RepairOrder order = repairOrderMapper.selectByOrderNo(orderNo);
+        order.setStatus(newStatus);
+        repairOrderMapper.update(order);
     }
     //删除报修单
     @Transactional

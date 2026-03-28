@@ -1,4 +1,4 @@
-package com.dorm.repairsystemspringver;
+package com.dorm;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
