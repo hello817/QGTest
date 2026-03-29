@@ -10,6 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/orders")
@@ -21,8 +25,21 @@ public class RepairOrderController {
 
     //创建报修单
     @PostMapping("/{id}")
-    public ResponseEntity<String> createOrder(@PathVariable("id") long studentId,@RequestBody CreateOrderDto orderDto){
-        userService.createRepairOrder(studentId,orderDto.getFixType(),orderDto.getDescription(),orderDto.getPriority());
+    public ResponseEntity<String> createOrder(@PathVariable("id") long studentId, @RequestPart("order") CreateOrderDto orderDto, @RequestPart(value = "image",required = false/*非必传*/) MultipartFile image){
+        byte[] imageData = null;
+        //这里会抛出io错误
+        if(image != null&&!image.isEmpty()){
+            //特判防bug
+            if(image.getSize() > 10*1024*1024){
+                return ResponseEntity.status(HttpStatus.NOT_ACCEPTABLE).body("图片大小不得大于10MB");
+            }
+            try {
+                imageData = image.getBytes();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        userService.createRepairOrder(studentId,orderDto.getFixType(),orderDto.getDescription(),orderDto.getPriority(),imageData);
         return ResponseEntity.status(201).body("创建成功");
     }
     //取消报修单
@@ -46,5 +63,20 @@ public class RepairOrderController {
         }catch (RuntimeException e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    //查询所有报修单(与学生绑定的)
+    @GetMapping
+    public List<RepairOrder> selectAllOrder(){
+        return order.selectAllWithStudent();
+    }
+    //学生id查询报修单
+    @GetMapping("/user/{id}")
+    public List<RepairOrder> selectByStudentId(@PathVariable("id") long id){
+        return order.selectByStudentId(id);
+    }
+    //根据单号查询
+    @GetMapping("/{orderNo}")
+    public RepairOrder selectByOrderNo(@PathVariable("orderNo") String orderNo){
+        return order.selectByOrderNo(orderNo);
     }
 }

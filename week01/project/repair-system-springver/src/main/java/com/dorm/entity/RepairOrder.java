@@ -61,6 +61,7 @@ public class RepairOrder {
     private String priority;
     private LocalDateTime creatTime;
     private LocalDateTime upodateTime;
+    private byte[] imageData;
     //关联对象
     private User student;
     //单号是创建的时候就顺便出的
@@ -80,6 +81,8 @@ public class RepairOrder {
         return 'L' + date + String.format("%04d",random);
     }
     //getter+setter
+    public byte[] getImageData(){return imageData;}
+    public void setImageData(byte[] imageData) {this.imageData = imageData;}
 
     public long getId() {return id;}
     public void setId(long id) {this.id = id;}

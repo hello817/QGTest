@@ -24,7 +24,7 @@ public class UserController {
     @Autowired
     private UserService userService;
     //登录接口
-    @PostMapping
+    @PostMapping()
     public ResponseEntity<User> loginAPI(@RequestBody LoginDto user){
         User loginUser = userService.login(user.getAccount(),user.getPassword());
         return ResponseEntity.ok(loginUser);
@@ -54,6 +54,15 @@ public class UserController {
         }catch (Exception e){
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+    //查找所有用户
+    @GetMapping
+    public List<User> selectAllUsers(){
+        return userMapper.selectAllStudents();
+    }
+    @GetMapping("/{id}")
+    public User selectById(@PathVariable("id") long id){
+        return userMapper.selectById(id);
     }
     /*
     这是测试接口用的，不要在意（

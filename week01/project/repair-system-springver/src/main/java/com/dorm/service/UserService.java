@@ -76,13 +76,14 @@ public class UserService {
     }
     //创建报修单
     @Transactional
-    public String createRepairOrder(long studentId,String fixType,String description,RepairOrder.Priority priority) {
+    public String createRepairOrder(long studentId,String fixType,String description,RepairOrder.Priority priority,byte[] imageData) {
             //注意这里要用报修单的映射
             RepairOrder order = new RepairOrder();
             order.setStudentId(studentId);
             order.setFixType(fixType);
             order.setDescription(description);
             order.setPriority(priority);
+            order.setImageData(imageData);
             repairOrderMapper.insert(order);
             return order.getOrderNo();
     }
