@@ -15,4 +15,4 @@ server:
 # 密钥已更改为环境变量
 jwt:
   secret: ${SECRET_KEY}
-  expiration: 86400000  # 24小时，单位毫秒
+  expiration: 86400000  # 有效时间24小时，这里是用单位毫秒表示
