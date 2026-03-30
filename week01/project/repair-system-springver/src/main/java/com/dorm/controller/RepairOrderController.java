@@ -43,7 +43,7 @@ public class RepairOrderController {
         return ResponseEntity.status(201).body("创建成功");
     }
     //取消报修单
-    @DeleteMapping("{orderNo}")
+    @PutMapping("{orderNo}/status")
     public ResponseEntity<String> cancelOrder(@PathVariable("orderNo") String orderNo){
         userService.cancelOrder(orderNo);
         return ResponseEntity.status(200).body("取消成功");
