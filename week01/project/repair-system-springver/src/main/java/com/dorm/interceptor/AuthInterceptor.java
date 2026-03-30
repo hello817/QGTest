@@ -11,12 +11,14 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 @Component
 public class AuthInterceptor implements HandlerInterceptor {
+
     @Autowired
     private JwtUtils jwtUtils;
     //覆写controller执行前的prehandle
     @Override
     public boolean preHandle(HttpServletRequest request/*截取http请求*/,HttpServletResponse response,Object handler)
     throws Exception/**/{
+        System.out.println("拦截请求: " + request.getRequestURI());  // 加这行
         //从请求头（request）获取token
         String token = request.getHeader("Authorization");
         //检查token是否存在

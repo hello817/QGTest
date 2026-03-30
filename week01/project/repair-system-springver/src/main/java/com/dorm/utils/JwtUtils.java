@@ -65,7 +65,9 @@ public class JwtUtils {
     //获取id
     public long getUserIdInToken(String token){
         Claims claims = parseToken(token);
-        return claims.get("userId",long.class);
+        Integer userIdInt = claims.get("userId", Integer.class);
+        Long userId = userIdInt.longValue();
+        return userId;
     }
     //获取账号
     public String getAccountInToken(String token) {
