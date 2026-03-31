@@ -1,28 +1,24 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <transition name="fade-transform" mode="out-in">
+      <router-view />
+    </transition>
   </div>
 </template>
 
-<script>
-import HelloWorld from './components/HelloWorld.vue'
-
-export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
-}
-</script>
-
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+body { margin: 0; font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; background: #fdfdfd; }
+:root { --orange: #FF8C00; }
+
+/* �������ȶ��� */
+.fade-transform-enter-active, .fade-transform-leave-active {
+  transition: all .3s;
 }
+.fade-transform-enter { opacity: 0; transform: translateX(-20px); }
+.fade-transform-leave-to { opacity: 0; transform: translateX(20px); }
+
+/* ȫ�ָ��� Element ��ɫ */
+.el-button--primary { background-color: var(--orange) !important; border-color: var(--orange) !important; }
+.el-tabs__item.is-active { color: var(--orange) !important; }
+.el-tabs__active-bar { background-color: var(--orange) !important; }
 </style>

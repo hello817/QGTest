@@ -14,6 +14,7 @@
         <result property="priority" column="priority"/>
         <result property="createTime" column="create_time"/>
         <result property="updateTime" column="update_time"/>
+        <result property="imageData" column="image_data"/>
     </resultMap>
 
     <resultMap id="orderWithStudentMap" type="com.dorm.entity.RepairOrder" extends="orderMap">
@@ -26,8 +27,8 @@
     </resultMap>
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO repair_order (order_no, student_id, fix_type, description, status, priority, create_time, update_time)
-        VALUES (#{orderNo}, #{studentId}, #{fixType}, #{description}, #{status}, #{priority}, NOW(), NOW())
+        INSERT INTO repair_order (order_no, student_id, fix_type, description, status, priority, create_time, update_time, image_data)
+        VALUES (#{orderNo}, #{studentId}, #{fixType}, #{description}, #{status}, #{priority}, NOW(), NOW(), #{imageData})
     </insert>
 
     <select id="selectById" resultMap="orderWithStudentMap">
